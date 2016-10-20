@@ -1,0 +1,44 @@
+TITLE SQ
+.MODEL small
+.STACK 100h
+.DATA
+	SPACE 		DB 'SPACE INVADERS'
+	LENESCAPE   EQU $-SPACE
+	CENTRASPACE EQU 20 - (LENESCAPE/2)
+	
+	PRESS 		DB 'PRESSIONE QUALQUER TECLA'
+	LENPRESS    EQU $-PRESS
+	CENTRAPRESS EQU 20 - (LENPRESS/2)
+	
+.CODE 
+MOV AX, @DATA
+MOV DS, AX
+MOV ES, AX
+
+MOV AX, 13H
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 15			;COR
+MOV DH, 2 	        ;LINHA
+MOV DL, CENTRASPACE ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENESCAPE
+LEA BP, SPACE
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 15            ;COR
+MOV DH, 20 	  		  ;LINHA
+MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENPRESS
+LEA BP, PRESS
+INT 10h
+
+mov ah, 07h
+int 21h
+
+MOV AH, 4CH
+INT 21H
+
+
+END
