@@ -1,0 +1,40 @@
+TITLE SSQ
+.MODEL small
+.STACK 100h
+.DATA
+	SPACE 		DB 'SPACE INVADERS'
+	LENESCAPE   EQU $-SPACE
+	CENTRASPACE EQU 20 - (LENESCAPE/2)
+	
+	PRESS 		DB 'PRESSIONE QUALQUER TECLA'
+	LENPRESS    EQU $-PRESS
+	CENTRAPRESS EQU 20 - (LENPRESS/2)
+	
+	ALIEN DB '   x     x   ' ,0ah, 0dh
+		  DB '    x   x    ' ,0ah, 0dh
+		  DB '  xxxxxxxxx  ' ,0ah, 0dh
+		  DB ' xxx xxx xxx ' ,0ah, 0dh
+		  DB 'xxxxxxxxxxxxx' ,0ah, 0dh
+		  DB 'x xxxxxxxxx x' ,0ah, 0dh
+		  DB 'x x       x x' ,0ah, 0dh
+		  DB '   xxx xxx  $' ,0ah, 0dh
+	
+.CODE 
+MOV AX, @DATA
+MOV DS, AX
+MOV ES, AX
+
+
+
+MOV AH, 9h
+LEA DX, ALIEN
+INT 21H
+
+mov ah, 07h
+int 21h
+
+MOV AH, 4CH
+INT 21H
+
+
+END
