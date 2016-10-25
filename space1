@@ -40,14 +40,14 @@ TITLE SQ
 	
 	ALCOUNT DB 0
 	
-	ALIENS	db 	'   xx   ';0  
-			db	'  xxxx  ';1
-			db	'   xx   ';2
-			db	'  xxxx  ';3 
-			db	'x  xx  x';4
-			db	'x  xx  x';5
-			db	'x xxxx x';6
-			db	' xxxxxx ';7
+	ALIENS	;db 	'   xx   ';0  
+			;db	'  xxxx  ';1
+			;db	'   xx   ';2
+			;db	'  xxxx  ';3 
+			;db	'x  xx  x';4
+			;db	'x  xx  x';5
+			;db	'x xxxx x';6
+			;db	' xxxxxx ';7
 	           ;[01234567]      matriz
 					   
 			db 	' xxxxxx ';0
