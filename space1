@@ -181,49 +181,57 @@ MOV AH, 07h ;pressione qualquer tecla
 INT 21h
 
 PRINTAMENU:
-	XOR CX,CX                     ;zera cx para count
-	LEA DI, ALIENS  
-	MALIENS:                      ;verifica se é nave ou vazio
-		CMP BYTE PTR [DI], ' '    ;verifica vazio
-		JE MESPACO                ;pula para vazio   
-		
-		CMP CX, 64
-		JB MNAVE                  ;os primeiros 64 bytes sao para a nave
-		
-		MOV BYTE PTR [DI], 3      ;de 4 em 4
-		JMP MINCR
-		
-	MNAVE:
-		MOV BYTE PTR [DI], 2
-		JMP MINCR
-	MESPACO:
-		MOV BYTE PTR [DI], 0
+	CALL PRINTALIENS
+	
+	MOV AL, 1100b  ;cor
+	MOV CX, 10     ;coluna
+	MOV DX, 10     ;linha
+	MOV AH, 0Ch
+	INT 10h
 
-	MINCR:
-		INC DI					  ;3+1 = 4++
-		INC CX                    ;count
-		CMP CX, 14  ;verifica se terminou
-		JB MALIENS                ;volta ao inicio
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-MOV AX, 0A000h      ;inicia video
-MOV ES, AX
 
-MOV NAVEX, 160   ;move nave para posicao inicial
-MOV NAVEY, 150
 
-MOV DX, 3DAh
+
 
 MAINLOOP:
 
-	WT1: 
-	IN AL, DX
-	TEST AL,8
-	JZ WT1
+	MOV NAVEX, 160   ;move nave para posicao inicial
+	MOV NAVEY, 150	
 	
-	WT2:
-	IN AL, DX
-	TEST AL,8
-	JNZ WT2
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	MOV CX, 32000   ;clear screen
 	XOR AX, AX
@@ -267,11 +275,25 @@ INT 10h
 MOV AH, 07h ;pressione qualquer tecla
 INT 21h
 
-
-	
-
-MOV AH, 4CH
+MOV AH, 4CH    ;FINALIZA
 INT 21H
+
+PRINTALIENS PROC 
+
+LOOP1:
+	MOV BL, [SI]
+	
+	CMP BL, 0
+	JE PRINT
+	
+	PRINT:
+	MOV AL, 1100b  ;cor
+	MOV CX, 10     ;coluna
+	MOV DX, 10     ;linha
+	MOV AH, 0Ch
+	INT 10h
+
+PRINTALIENS ENDP
 
 
 END
