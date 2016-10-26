@@ -1,5 +1,4 @@
 TITLE SSQ
-TITLE SSQ
 .MODEL small
 .STACK 100h
 .DATA
@@ -12,12 +11,9 @@ MOV ES, AX
 MOV AX, 13H
 INT 10h
 
-MOV AL, 13H
-MOV AH, 0
-INT 10h
-MOV AL, 1100b
-MOV CX, 10
-MOV DX, 10
+MOV AL, 1100b  ;cor
+MOV CX, 10     ;coluna
+MOV DX, 10     ;linha
 MOV AH, 0Ch
 INT 10h
 
