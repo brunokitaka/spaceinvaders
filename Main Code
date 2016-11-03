@@ -1,0 +1,416 @@
+TITLE SQ
+.MODEL small
+.STACK 100h
+
+PRINTCOISAS	MACRO MATRIZ, COR, XINICIAL, YINICIAL, LARGURA, TOTAL
+	PUSH CX
+	MOV	X_INICIO,0
+	MOV	Y_INICIO, 0
+	MOV	TOTALMAT,0
+	MOV	LARGURAMAT,0
+	XOR	SI,SI
+
+	MOV	AL, COR
+	MOV	X_INICIO, XINICIAL
+	MOV	Y_INICIO, YINICIAL
+	MOV	TOTALMAT, TOTAL
+	MOV	LARGURAMAT, LARGURA
+	LEA	SI, MATRIZ
+
+	CALL	 PRINTAMAT
+
+	POP 	CX
+
+ENDM
+
+PRINTNAVE  MACRO MATRIZNAVE, COR, XINAVE, YINAVE, LARGURANAVE, TOTALNAVE
+	PUSH CX
+	MOV	X_INICIO,0
+	MOV	Y_INICIO, 0
+	MOV	TOTALMAT,0
+	MOV	LARGURAMAT,0
+	XOR	SI,SI
+
+	MOV	AL, COR
+	MOV	X_INICIO, XINAVE
+	MOV	Y_INICIO, YINAVE
+	MOV	TOTALMAT, TOTALNAVE
+	MOV	LARGURAMAT, LARGURANAVE
+	LEA	SI, MATRIZNAVE
+
+	CALL	 PRINTAMAT
+
+	POP 	CX
+
+ENDM
+
+.DATA
+	SPACE 		DB 'SPACE INVADERS'
+	LENESCAPE   EQU $-SPACE
+	CENTRASPACE EQU 20 - (LENESCAPE/2)
+	
+	PRESS 		DB 'PRESS ANY KEY'
+	LENPRESS    EQU $-PRESS
+	CENTRAPRESS EQU  20 - (LENPRESS/2)
+	
+	GANHOU 		DB 'VOCE GANHOU!'
+	LENGANHOU   EQU $-GANHOU
+	CENGANHOU   EQU 20 - (LENGANHOU/2)
+	
+	FEITO       DB 'BY BRUNO KITAKA & PEDRO PIERINA'
+	LENFEITO    EQU $-FEITO
+	CENFEITO 	EQU 20 - (LENFEITO/2)
+	
+	MSGPTS		DB '==============SCORE  TABLE=============='
+	LENMSGPTS   EQU $-MSGPTS
+	CENMSGPTS   EQU (LENMSGPTS/2) - 20
+	
+	PTS1		DB' = 10 POINTS',0ah, 0dh
+	LENPTS1     EQU $-PTS1
+	CENPTS1 	EQU 8 + (LENPTS1/2)
+	PTS2		DB' = 20 POINTS',0ah, 0dh
+	LENPTS2     EQU $-PTS2
+	CENPTS2 	EQU 8 + (LENPTS2/2)
+	PTS3		DB' = 40 POINTS',0ah, 0dh
+	LENPTS3     EQU $-PTS3
+	CENPTS3 	EQU 8 + (LENPTS3/2)
+	
+	ALIEN1      DB '   x     x   $' ,0ah, 0dh
+	CEN1 		EQU 21 - (14/2)
+	ALIEN2	    DB '    x   x    $' ,0ah, 0dh
+	CEN2	    EQU 21 - (14/2)
+	ALIEN3	    DB '  xxxxxxxxx  $' ,0ah, 0dh
+	CEN3 		EQU 21 - (14/2)
+	ALIEN4	    DB ' xxx xxx xxx $' ,0ah, 0dh
+	CEN4 		EQU 21 - (14/2)
+	ALIEN5	    DB 'xxxxxxxxxxxxx$' ,0ah, 0dh
+	CEN5 		EQU 21 - (14/2)
+	ALIEN6	    DB 'x xxxxxxxxx x$' ,0ah, 0dh
+	CEN6 		EQU 20 - (14/2)
+	ALIEN7	    DB 'x x       x x $' ,0ah, 0dh
+	CEN7 		EQU 21 - (14/2)
+	ALIEN8      DB '   xxx xxx   $' ,0ah, 0dh
+	CEN8 		EQU 21 - (14/2)
+		  
+	NAVEX DW 50
+	NAVEY DW 50
+	
+	ALCOUNT DB 0
+	COUNT	DW	0
+	
+	LARGURAMAT	DW	0
+	TOTALMAT	DW	0
+	X_INICIO	DW	0
+	Y_INICIO	DW	0
+	LADO_X	DW	0
+	LADO_Y	DW	0
+			   
+	ALIEN11 DB 	0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0;0
+ 			DB	0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0;1
+			DB	0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0;2
+ 			DB	0,0,1,1,1,0,1,1,1,1,0,1,1,1,0,0;3
+ 			DB	0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0;4
+ 			DB	0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,0;5
+ 			DB	0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0;6
+ 			DB	0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0;7
+			   ;0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+			   
+	ALIEN22 DB   0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0;0
+		    DB   0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0;1
+			DB   0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0;2
+			DB   0,0,0,1,1,0,1,1,1,1,0,1,1,0,0,0;3
+			DB   0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0;4
+			DB   0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0;5
+			DB   0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0;6
+			DB   0,0,0,0,1,1,1,0,0,1,1,1,0,0,0,0;7
+	            ;0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+	
+	ALIEN33 DB   0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0;1
+			DB   0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0;2
+			DB   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1;3
+			DB   1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,1;4
+			DB   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1;5
+			DB   0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0;6
+			DB   0,0,0,1,1,0,0,1,1,0,0,1,1,0,0,0;7 
+			DB   0,0,0,0,1,1,1,0,0,1,1,1,0,0,0,0;8
+			    ;0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+	
+	NAVE 	DB 0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+			DB 0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0
+			DB 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+			DB 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+			
+
+	
+.CODE 
+MOV AX, @DATA
+MOV DS, AX
+MOV ES, AX
+
+MOV AX, 13H			;MODO DE VIDEO
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 10			;COR
+MOV DH, 2 	        ;LINHA
+MOV DL, CENTRASPACE ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENESCAPE
+LEA BP, SPACE
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2             ;COR
+MOV DH, 20 	  		  ;LINHA
+MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENPRESS
+LEA BP, PRESS
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 0Eh            ;COR
+MOV DH, 5 	  		  ;LINHA
+MOV DL, CENFEITO   		  ;COLUNA
+MOV CX, LENFEITO
+LEA BP, FEITO
+INT 10h
+
+PRINTALIEN:
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 8 	  		  ;LINHA
+	MOV DL, CEN1       	  ;COLUNA
+	MOV CX, 13
+	LEA BP, ALIEN1
+	INT 10h
+
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 9 	  		  ;LINHA
+	MOV DL, CEN2             ;COLUNA
+	MOV CX, 13
+	LEA BP, ALIEN2
+	INT 10h
+
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 10 	  		  ;LINHA
+	MOV DL, CEN3       
+	MOV CX, 13
+	LEA BP, ALIEN3
+	INT 10h
+	
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 11 	  		  ;LINHA
+	MOV DL, CEN4       
+	MOV CX, 13
+	LEA BP, ALIEN4
+	INT 10h
+	
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 12 	  		  ;LINHA
+	MOV DL, CEN5       
+	MOV CX, 13
+	LEA BP, ALIEN5
+	INT 10h
+	
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 13 	  		  ;LINHA
+	MOV DL, CEN6       
+	MOV CX, 13
+	LEA BP, ALIEN6
+	INT 10h
+	
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 14 	  		  ;LINHA
+	MOV DL, CEN7       
+	MOV CX, 13
+	LEA BP, ALIEN7
+	INT 10h
+	
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 15 	  		  ;LINHA
+	MOV DL, CEN8       
+	MOV CX, 13
+	LEA BP, ALIEN8
+	INT 10h
+	
+
+
+MOV AH, 07h ;pressione qualquer tecla
+INT 21h
+	
+	PUSH	AX					;Salva registradores
+	PUSH	BX						
+	PUSH	CX
+	PUSH	DX
+		
+	MOV		AX,0A000H
+	MOV		ES,AX
+	XOR		DI,DI
+	XOR		AX,AX
+	MOV		CX,32000
+	CLD
+	REP		STOSW
+
+	POP		DX					;retorna registradores salvos
+	POP		CX
+	POP		BX
+	POP		AX
+
+PRINTAMENU:
+	MOV AX, @DATA
+	MOV DS, AX
+	MOV ES, AX
+
+	MOV AX, 13H			;MODO DE VIDEO
+	INT 10h
+	
+	MOV AX, 1300H		;PRINTA MSG DE SCORE TABLE
+	MOV BX, 2H
+	MOV DH, 5
+	MOV DL, CENMSGPTS
+	MOV CX, LENMSGPTS
+	LEA BP, MSGPTS
+	INT 10H
+		MOV AX, 1300H		;VALOR DO PRIMEIOR ALIEN
+	MOV BX, 2H
+	MOV DH, 16
+	MOV DL, CENPTS1
+	MOV CX, LENPTS1
+	LEA BP, PTS1
+	INT 10H
+	 
+	MOV AX, 1300H			;VALOR DO SEGUNDO ALIEN
+	MOV BX, 2H
+	MOV DH, 13
+	MOV DL, CENPTS2
+	MOV CX, LENPTS2
+	LEA BP, PTS2
+	INT 10H
+	
+	MOV AX, 1300H			;VAlOR DO TERCEIRO ALIEN
+	MOV BX, 2H	
+	MOV DH, 10
+	MOV DL, CENPTS3
+	MOV CX, LENPTS3
+	LEA BP, PTS3
+	INT 10H
+	
+	MOV AX, 1300H
+	MOV BX, 2             ;COR
+	MOV DH, 20 	  		  ;LINHA
+	MOV DL, CENTRAPRESS   ;COLUNA
+	MOV CX, LENPRESS
+	LEA BP, PRESS
+	INT 10h
+	
+	PRINTCOISAS	ALIEN11, 15, 105, 80, 16, 128		;COR, X, Y, LARGURA E TOTAL
+	PRINTCOISAS	ALIEN22, 15, 105, 104, 16, 128
+	PRINTCOISAS	ALIEN33, 15, 105, 128, 16, 128
+
+	 
+	MOV AH, 07h ;pressione qualquer tecla
+	INT 21H	 
+	 
+	MOV AX, 0A000h      ;inicia video
+	MOV ES, AX
+
+MAINLOOP:
+
+	MOV NAVEX, 160   ;move nave para posicao inicial
+	MOV NAVEY, 150
+	
+	PRINTNAVE	NAVE, 15, 160, 150, 16, 64
+
+	MOV CX, 32000   ;clear screen
+	XOR AX, AX
+	XOR DI, DI
+	REP STOS word ptr [di]
+			
+	VERIFICA_FINAL:		
+	CMP ALCOUNT, 0    ;se nao houver aliens
+	JE PRINTFIM      ;pula para print do fim
+;-----------------------------------------------------------
+	JMP MAINLOOP	  ;se nao, atualiza
+	
+PRINTFIM:
+MOV AX, @DATA
+MOV ES, AX
+	
+MOV AX, 1300H		;mensagem ganhou
+MOV BX, 2			;COR
+MOV DH, 10 	        ;LINHA
+MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENGANHOU
+LEA BP, GANHOU
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2            ;COR
+MOV DH, 20 	  		  ;LINHA
+MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENPRESS
+LEA BP, PRESS
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2             ;COR
+MOV DH, 24 	  		  ;LINHA
+MOV DL, CENFEITO   		  ;COLUNA
+MOV CX, LENFEITO
+LEA BP, FEITO
+INT 10h
+
+MOV AH, 07h ;pressione qualquer tecla
+INT 21h
+
+MOV AH, 4CH
+INT 21H
+
+PRINTAMAT PROC
+		MOV	LADO_X,0
+		MOV	LADO_Y,0
+		MOV	COUNT,0
+
+		INICIO:
+			MOV	CX, X_INICIO
+			ADD	CX, LADO_X
+			INC	LADO_X
+			MOV	DX, Y_INICIO
+			ADD	DX, LADO_Y
+
+			MOV	BL, [SI]   ;joga posicao da matriz
+
+			CMP	BL, 0      ;se for 0
+			JE	PRINT0     ;printa 
+	
+			MOV	AH, 0CH
+			INT	10H
+
+		PRINT0:	
+				INC	SI      ;posicao + 1
+				INC	COUNT   ;count++
+
+				MOV	BX, LARGURAMAT   ;verifica se atingiu o limite
+				CMP	LADO_X, BX
+				JL	NEXT        ;se nao continua
+
+				MOV	LADO_X, 0   ;se for, volta
+				INC	LADO_Y      ;aumenta linha
+
+		NEXT:	
+				MOV	BX, TOTALMAT   ;verifica se ja foi printado tudo
+				CMP	COUNT, BX
+				JL	INICIO        ;se nao, volta ao inicio
+
+				RET
+
+PRINTAMAT ENDP
+
+
+END
