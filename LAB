@@ -58,26 +58,30 @@ ENDM
 	LENGANHOU   EQU $-GANHOU
 	CENGANHOU   EQU 20 - (LENGANHOU/2)
 	
-	FEITO       DB 'BY BRUNO KITAKA & PEDRO PIERINA'
+	FEITO       DB '   BY BRUNO KITAKA & PEDRO PIERINA'
 	LENFEITO    EQU $-FEITO
 	CENFEITO 	EQU 20 - (LENFEITO/2)
 	
+	PERDEU       DB 'YOU LOSE! XASTRE WINS!'
+	LENPERDEU    EQU $-PERDEU
+	CENPERDEU    EQU 20 - (LENPERDEU/2)
+	
 	ALIEN1      DB '   x     x   $' ,0ah, 0dh
-	CEN1 		EQU 20 - (14/2)
+	CEN1 		EQU 21 - (14/2)
 	ALIEN2	    DB '    x   x    $' ,0ah, 0dh
-	CEN2	    EQU 20 - (14/2)
+	CEN2	    EQU 21 - (14/2)
 	ALIEN3	    DB '  xxxxxxxxx  $' ,0ah, 0dh
-	CEN3 		EQU 20 - (14/2)
+	CEN3 		EQU 21 - (14/2)
 	ALIEN4	    DB ' xxx xxx xxx $' ,0ah, 0dh
-	CEN4 		EQU 20 - (14/2)
+	CEN4 		EQU 21 - (14/2)
 	ALIEN5	    DB 'xxxxxxxxxxxxx$' ,0ah, 0dh
-	CEN5 		EQU 20 - (14/2)
+	CEN5 		EQU 21 - (14/2)
 	ALIEN6	    DB 'x xxxxxxxxx x$' ,0ah, 0dh
-	CEN6 		EQU 20 - (14/2)
+	CEN6 		EQU 21 - (14/2)
 	ALIEN7	    DB 'x x       x x $' ,0ah, 0dh
-	CEN7 		EQU 20 - (14/2)
+	CEN7 		EQU 21 - (14/2)
 	ALIEN8      DB '   xxx xxx   $' ,0ah, 0dh
-	CEN8 		EQU 20 - (14/2)
+	CEN8 		EQU 21 - (14/2)
 	
 	MSGPTS		DB '==============SCORE  TABLE=============='
 	LENMSGPTS   EQU $-MSGPTS
@@ -96,6 +100,8 @@ ENDM
 		  
 	NAVEX DW 50
 	NAVEY DW 0
+	
+	COMPAREX DW 0
 	
 	ALCOUNT DB 0
 	COUNT	DW	0
@@ -411,25 +417,60 @@ MAINLOOP:
 	
 	
 	CMP AL, 30h          
-	JE PRINTFIM
+	JE PRINTGANHOU
 	
 	MOV ALCOUNT, 1
 			
 	VERIFICA_FINAL:		
 	CMP ALCOUNT, 0    ;se nao houver aliens
-	JE PRINTFIM      ;pula para print do fim
+	JE PRINTGANHOU      ;pula para print do fim
+	
+	; CALL CLS
+	; MOV AX, @DATA
+	; MOV ES, AX
+		
+	; MOV AX, 1300H		;mensagem perdeu
+	; MOV BX, 2			;COR
+	; MOV DH, 10 	        ;LINHA
+	; MOV DL, CENPERDEU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+	; MOV CX, LENPERDEU
+	; LEA BP, PERDEU
+	; INT 10h
+
+	; MOV AX, 1300H
+	; MOV BX, 2            ;COR
+	; MOV DH, 20 	  		  ;LINHA
+	; MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+	; MOV CX, LENPRESS
+	; LEA BP, PRESS
+	; INT 10h
+
+	; MOV AX, 1300H
+	; MOV BX, 2            ;COR
+	; MOV DH, 24 	  		  ;LINHA
+	; MOV DL, CENFEITO   		  ;COLUNA
+	; MOV CX, LENFEITO
+	; LEA BP, FEITO
+	; INT 10h
+
+	; MOV AH, 07h ;pressione qualquer tecla
+	; INT 21h
+
+	; MOV AH, 4CH
+	; INT 21H
+
 ;-----------------------------------------------------------
 	JMP MAINLOOP	  ;se nao, atualiza
 ;-----------------END MAIN LOOP-------------------------------------
 
 	
-PRINTFIM:
+PRINTGANHOU:
 CALL CLS
 MOV AX, @DATA
 MOV ES, AX
 	
 MOV AX, 1300H		;mensagem ganhou
-MOV BX, 0BH			;COR
+MOV BX, 2			;COR
 MOV DH, 10 	        ;LINHA
 MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
 MOV CX, LENGANHOU
@@ -437,7 +478,7 @@ LEA BP, GANHOU
 INT 10h
 
 MOV AX, 1300H
-MOV BX, 15            ;COR
+MOV BX, 2            ;COR
 MOV DH, 20 	  		  ;LINHA
 MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
 MOV CX, LENPRESS
@@ -445,7 +486,7 @@ LEA BP, PRESS
 INT 10h
 
 MOV AX, 1300H
-MOV BX, 15            ;COR
+MOV BX, 2            ;COR
 MOV DH, 24 	  		  ;LINHA
 MOV DL, CENFEITO   		  ;COLUNA
 MOV CX, LENFEITO
@@ -1263,6 +1304,44 @@ PRINTJOGO ENDP
 ; MOVEALIENDIR ENDP
 
 TIROP PROC
+
+	CMP COMPAREX, 1 
+	JE NXT2
+	JMP MAINTIRO
+	NXT2:
+		PUSH CX  ;SALVA
+		CALL DELAY
+		POP CX   ;OPEN       
+		
+		MOV BX, NAVEX
+		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
+
+		PUSH CX  ;SALVA
+		CALL DELAY
+		POP CX   ;OPEN 	
+
+		MOV BX, NAVEX
+		SUB CX, 3
+		PRINTCOISAS TIRO, 15, BX, CX, 2, 6
+		
+		MOV BX, NAVEX
+		PRINTCOISAS TIRO, 0, BX, 0, 2, 6
+		
+		CMP BX, 0
+		JE LIMPA
+		
+		POP NAVEX		
+	    POP BX
+		RET
+		
+		LIMPA:
+		MOV CX, 0
+		MOV BX, 0
+		
+		RET
+		
+	MAINTIRO:
+	
 	PUSH BX
 	PUSH NAVEX
 	
@@ -1270,9 +1349,8 @@ TIROP PROC
 	ADD BX, 7      ;alinha tiro com bico da nave
 	MOV NAVEX, BX
 	MOV CX, 186
+	ADD COMPAREX, 1
 	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
-
-	LOOPDOTIRO:
 			
 		PUSH CX  ;SALVA
 		CALL DELAY
@@ -1289,20 +1367,13 @@ TIROP PROC
 		SUB CX, 3
 		PRINTCOISAS TIRO, 15, BX, CX, 2, 6
 	
-		
-		JMP NXT2
-		PNT1: JMP LOOPDOTIRO
-		
-		NXT2:
-		CMP CX, 0
-		JNZ PNT1
-		
 		MOV BX, NAVEX
 		PRINTCOISAS TIRO, 0, BX, 0, 2, 6
 		
 		POP NAVEX		
 	    POP BX
 		RET
+		
 TIROP ENDP
 
 DELAY PROC
