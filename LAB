@@ -198,9 +198,122 @@ ENDM
 	
 	COUNTIRO DW 0
 	VERIFICATIRO DW 0
+	TIROY DW 0
 
 	
-.CODE 
+.CODE
+	CALL MENU
+	
+	CALL MENU2
+	
+	MOV NAVEX, 50
+	
+MAINLOOP:
+	
+	MOV BX, NAVEX
+	PRINTNAVE   NAVE, 2, BX, 190, 16, 64
+	PRINTCOISAS SCORE, 15, 0, 0, 26, 156 
+	PRINTCOISAS LIVES, 15, 260, 1, 26, 156
+	PRINTCOISAS CORACAO, 12, 289, 0, 9, 72
+	PRINTCOISAS CORACAO, 12, 299, 0, 9, 72
+	PRINTCOISAS CORACAO, 12, 309, 0, 9, 72
+	
+	CALL PRINTJOGO     ;PRINTA TODOS ALIENS
+	
+	MOV AH,01h
+	INT 16h
+	JZ NXT4
+	
+	MOV AH, 07h
+	INT 21h
+	
+	CMP AL, 20h        ;verifica se é spacebar
+	JE PTTIRO          ;se sim, pula para o tiro
+	JMP NXT            ;se nao, segue
+	
+	PTTIRO: CALL TIROP   ;procedimento do tiro
+	MOV VERIFICATIRO, 1
+	 
+	NXT:
+		
+	CMP VERIFICATIRO, 1
+	JE PTVERIFICA
+	JMP NXT4
+	
+	PTVERIFICA:
+	CALL ATUALIZATIRO
+	CMP AL, 61h         ;verifica se é 'a'
+	JE NVES             ;se sim, pula para movimencao para esquerda
+	JMP NXT3            ;se nao, segue
+	
+	NVES: SUB NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
+	CALL PRINTANAVEE
+	
+	NXT3:
+	CMP AL, 64h         ;verifica se é 'd'
+	JE NVDI				;se sim, pula para movimencao para esquerda
+	JMP NXT4            ;se nao, segue
+	
+	NVDI: ADD NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
+	CALL PRINTANAVED
+
+	NXT4:
+	; MOV AH, 07h ;pressione qualquer tecla
+	; INT 21h	
+	
+	
+	CMP AL, 30h          
+	JE PRINTGANHOU
+	
+	MOV ALCOUNT, 1
+			
+	VERIFICA_FINAL:		
+	CMP ALCOUNT, 0    ;se nao houver aliens
+	JE PRINTGANHOU      ;pula para print do fim
+	
+
+;-----------------------------------------------------------
+	JMP MAINLOOP	  ;se nao, atualiza
+;-----------------END MAIN LOOP-------------------------------------
+
+	
+PRINTGANHOU:
+CALL CLS
+MOV AX, @DATA
+MOV ES, AX
+	
+MOV AX, 1300H		;mensagem ganhou
+MOV BX, 2			;COR
+MOV DH, 10 	        ;LINHA
+MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENGANHOU
+LEA BP, GANHOU
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2            ;COR
+MOV DH, 20 	  		  ;LINHA
+MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENPRESS
+LEA BP, PRESS
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2            ;COR
+MOV DH, 24 	  		  ;LINHA
+MOV DL, CENFEITO   		  ;COLUNA
+MOV CX, LENFEITO
+LEA BP, FEITO
+INT 10h
+
+MOV AH, 07h ;pressione qualquer tecla
+INT 21h
+
+MOV AH, 4CH
+INT 21H
+
+
+MENU PROC
 MOV AX, @DATA
 MOV DS, AX
 MOV ES, AX
@@ -303,7 +416,11 @@ PRINTALIEN:
 	INT 21h
 
 	CALL CLS
+	
+	RET
+MENU ENDP
 
+MENU2 PROC
 PRINTAMENU:
 
 	MOV AX, @DATA
@@ -361,143 +478,8 @@ PRINTAMENU:
 	INT 21H	 
 	
 	CALL CLS
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INICIO JOGO
-	
-	
-	
-	MOV NAVEX, 50
-	
-	
-
-MAINLOOP:
-
-	MOV BX, NAVEX
-	PRINTNAVE   NAVE, 2, BX, 190, 16, 64
-	PRINTCOISAS SCORE, 15, 0, 0, 26, 156 
-	PRINTCOISAS LIVES, 15, 260, 1, 26, 156
-	PRINTCOISAS CORACAO, 12, 289, 0, 9, 72
-	PRINTCOISAS CORACAO, 12, 299, 0, 9, 72
-	PRINTCOISAS CORACAO, 12, 309, 0, 9, 72
-	
-	CALL PRINTJOGO     ;PRINTA TODOS ALIENS
-	
-	MOV AH,01h
-	INT 16h
-	JZ NXT4
-	
-	MOV AH, 07h
-	INT 21h
-	
-	CMP AL, 20h        ;verifica se é spacebar
-	JE PTTIRO          ;se sim, pula para o tiro
-	JMP NXT            ;se nao, segue
-	
-	PTTIRO: CALL TIROP   ;procedimento do tiro
-
-	 
-	NXT:
-	CMP AL, 61h         ;verifica se é 'a'
-	JE NVES             ;se sim, pula para movimencao para esquerda
-	JMP NXT3            ;se nao, segue
-	
-	NVES: SUB NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
-	CALL PRINTANAVEE
-	
-	NXT3:
-	CMP AL, 64h         ;verifica se é 'd'
-	JE NVDI				;se sim, pula para movimencao para esquerda
-	JMP NXT4            ;se nao, segue
-	
-	NVDI: ADD NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
-	CALL PRINTANAVED
-
-	NXT4:
-	; MOV AH, 07h ;pressione qualquer tecla
-	; INT 21h	
-	
-	
-	CMP AL, 30h          
-	JE PRINTGANHOU
-	
-	MOV ALCOUNT, 1
-			
-	VERIFICA_FINAL:		
-	CMP ALCOUNT, 0    ;se nao houver aliens
-	JE PRINTGANHOU      ;pula para print do fim
-	
-	; CALL CLS
-	; MOV AX, @DATA
-	; MOV ES, AX
-		
-	; MOV AX, 1300H		;mensagem perdeu
-	; MOV BX, 2			;COR
-	; MOV DH, 10 	        ;LINHA
-	; MOV DL, CENPERDEU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-	; MOV CX, LENPERDEU
-	; LEA BP, PERDEU
-	; INT 10h
-
-	; MOV AX, 1300H
-	; MOV BX, 2            ;COR
-	; MOV DH, 20 	  		  ;LINHA
-	; MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-	; MOV CX, LENPRESS
-	; LEA BP, PRESS
-	; INT 10h
-
-	; MOV AX, 1300H
-	; MOV BX, 2            ;COR
-	; MOV DH, 24 	  		  ;LINHA
-	; MOV DL, CENFEITO   		  ;COLUNA
-	; MOV CX, LENFEITO
-	; LEA BP, FEITO
-	; INT 10h
-
-	; MOV AH, 07h ;pressione qualquer tecla
-	; INT 21h
-
-	; MOV AH, 4CH
-	; INT 21H
-
-;-----------------------------------------------------------
-	JMP MAINLOOP	  ;se nao, atualiza
-;-----------------END MAIN LOOP-------------------------------------
-
-	
-PRINTGANHOU:
-CALL CLS
-MOV AX, @DATA
-MOV ES, AX
-	
-MOV AX, 1300H		;mensagem ganhou
-MOV BX, 2			;COR
-MOV DH, 10 	        ;LINHA
-MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-MOV CX, LENGANHOU
-LEA BP, GANHOU
-INT 10h
-
-MOV AX, 1300H
-MOV BX, 2            ;COR
-MOV DH, 20 	  		  ;LINHA
-MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-MOV CX, LENPRESS
-LEA BP, PRESS
-INT 10h
-
-MOV AX, 1300H
-MOV BX, 2            ;COR
-MOV DH, 24 	  		  ;LINHA
-MOV DL, CENFEITO   		  ;COLUNA
-MOV CX, LENFEITO
-LEA BP, FEITO
-INT 10h
-
-MOV AH, 07h ;pressione qualquer tecla
-INT 21h
-
-MOV AH, 4CH
-INT 21H
+	RET
+MENU2 ENDP
 
 PRINTAMAT PROC
 		MOV	LADO_X,0
@@ -1305,108 +1287,51 @@ PRINTJOGO ENDP
 
 TIROP PROC
 
-	CMP COMPAREX, 1 
-	JE NXT2
-	JMP MAINTIRO
-	NXT2:
-		PUSH CX  ;SALVA
-		CALL DELAY
-		POP CX   ;OPEN       
-		
-		MOV BX, NAVEX
-		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
-
-		PUSH CX  ;SALVA
-		CALL DELAY
-		POP CX   ;OPEN 	
-
-		MOV BX, NAVEX
-		SUB CX, 3
-		PRINTCOISAS TIRO, 15, BX, CX, 2, 6
-		
-		MOV BX, NAVEX
-		PRINTCOISAS TIRO, 0, BX, 0, 2, 6
-		
-		CMP BX, 0
-		JE LIMPA
-		
-		POP NAVEX		
-	    POP BX
-		RET
-		
-		LIMPA:
-		MOV CX, 0
-		MOV BX, 0
-		
-		RET
-		
-	MAINTIRO:
-	
 	PUSH BX
-	PUSH NAVEX
-	
+ 	PUSH NAVEX
+ 	
 	MOV BX, NAVEX  ;posicao nave
 	ADD BX, 7      ;alinha tiro com bico da nave
 	MOV NAVEX, BX
 	MOV CX, 186
-	ADD COMPAREX, 1
 	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
-			
-		PUSH CX  ;SALVA
-		CALL DELAY
-		POP CX   ;OPEN       
-		
-		MOV BX, NAVEX
-		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
 
-		PUSH CX  ;SALVA
-		CALL DELAY
-		POP CX   ;OPEN 	
-
-		MOV BX, NAVEX
-		SUB CX, 3
-		PRINTCOISAS TIRO, 15, BX, CX, 2, 6
 	
-		MOV BX, NAVEX
-		PRINTCOISAS TIRO, 0, BX, 0, 2, 6
-		
-		POP NAVEX		
-	    POP BX
-		RET
-		
+    RET
+    	
 TIROP ENDP
 
 DELAY PROC
 	
- 	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+ 	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 	
- 	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+ 	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 	
-	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 	
-	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 	
-	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 	
-	MOV     CX, 0
-	MOV     DX, 256
-	MOV     AH, 86H
-	INT     15H
+	; MOV     CX, 0
+	; MOV     DX, 256
+	; MOV     AH, 86H
+	; INT     15H
 
 	RET
 DELAY ENDP
@@ -1433,4 +1358,76 @@ PRINTANAVED PROC                            ;movimenta nave direita
 	RET
 PRINTANAVED ENDP
 
+PERDEUP PROC
+	CALL CLS
+	MOV AX, @DATA
+	MOV ES, AX
+		
+	MOV AX, 1300H		;mensagem perdeu
+	MOV BX, 2			;COR
+	MOV DH, 10 	        ;LINHA
+	MOV DL, CENPERDEU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+	MOV CX, LENPERDEU
+	LEA BP, PERDEU
+	INT 10h
+
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 20 	  		  ;LINHA
+	MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+	MOV CX, LENPRESS
+	LEA BP, PRESS
+	INT 10h
+
+	MOV AX, 1300H
+	MOV BX, 2            ;COR
+	MOV DH, 24 	  		  ;LINHA
+	MOV DL, CENFEITO   		  ;COLUNA
+	MOV CX, LENFEITO
+	LEA BP, FEITO
+	INT 10h
+
+	MOV AH, 07h ;pressione qualquer tecla
+	INT 21h
+
+	MOV AH, 4CH
+	INT 21H
+PERDEUP ENDP
+
+ATUALIZATIRO PROC	
+		LOOPDOTIRO:	
+		PUSH CX  ;SALVA
+		CALL DELAY
+		POP CX   ;OPEN       
+		
+		MOV BX, NAVEX
+		MOV CX, TIROY
+		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
+
+		PUSH CX  ;SALVA
+    	CALL DELAY
+    	POP CX   ;OPEN 	
+    
+    	MOV BX, NAVEX
+    	SUB TIROY, 3
+		MOV CX, TIROY
+    	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
+    	
+    	NXT2:
+    	CMP TIROY, 0
+    	JA FIMTIRO
+		RET
+    	
+		FIMTIRO:
+    	MOV BX, NAVEX
+    	PRINTCOISAS TIRO, 0, BX, 0, 2, 6
+		MOV VERIFICATIRO, 0
+    	
+    	POP NAVEX		
+        POP BX
+
+	RET
+ATUALIZATIRO ENDP
+
 END
+
