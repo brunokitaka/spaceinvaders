@@ -199,6 +199,7 @@ ENDM
 	COUNTIRO DW 0
 	VERIFICATIRO DW 0
 	TIROY DW 0
+	TIROX DW 0
 
 	
 .CODE
@@ -206,6 +207,7 @@ ENDM
 	
 	CALL MENU2
 	
+	MOV TIROX, 50
 	MOV NAVEX, 50
 	
 MAINLOOP:
@@ -238,15 +240,19 @@ MAINLOOP:
 		
 	CMP VERIFICATIRO, 1
 	JE PTVERIFICA
-	JMP NXT4
+	JMP NXT7
 	
 	PTVERIFICA:
 	CALL ATUALIZATIRO
+	
+	NXT7:
 	CMP AL, 61h         ;verifica se é 'a'
 	JE NVES             ;se sim, pula para movimencao para esquerda
 	JMP NXT3            ;se nao, segue
 	
-	NVES: SUB NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
+	NVES: 
+	SUB TIROX, 8
+	SUB NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
 	CALL PRINTANAVEE
 	
 	NXT3:
@@ -254,7 +260,9 @@ MAINLOOP:
 	JE NVDI				;se sim, pula para movimencao para esquerda
 	JMP NXT4            ;se nao, segue
 	
-	NVDI: ADD NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
+	NVDI: 
+	ADD TIROX, 8
+	ADD NAVEX, 8  ;movimentacao p/ esquerda, 8 px para esquerda
 	CALL PRINTANAVED
 
 	NXT4:
@@ -1286,15 +1294,15 @@ PRINTJOGO ENDP
 ; MOVEALIENDIR ENDP
 
 TIROP PROC
-
-	PUSH BX
- 	PUSH NAVEX
  	
-	MOV BX, NAVEX  ;posicao nave
-	ADD BX, 7      ;alinha tiro com bico da nave
-	MOV NAVEX, BX
-	MOV CX, 186
-	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
+	XOR AX, AX
+	XOR DX, DX
+	
+	MOV AX, TIROX  ;posicao nave
+	ADD AX, 7      ;alinha tiro com bico da nave
+	MOV TIROX, AX
+	MOV DX, 186
+	PRINTCOISAS TIRO, 15, AX, DX, 2, 6
 
 	
     RET
@@ -1395,23 +1403,25 @@ PERDEUP PROC
 PERDEUP ENDP
 
 ATUALIZATIRO PROC	
-		LOOPDOTIRO:	
-		PUSH CX  ;SALVA
-		CALL DELAY
-		POP CX   ;OPEN       
+		; PUSH DX  ;SALVA
+		; CALL DELAY
+		; POP DX   ;OPEN       
 		
-		MOV BX, NAVEX
-		MOV CX, TIROY
-		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
+		XOR AX, AX
+		XOR DX, DX
+		
+		MOV AX, TIROX
+		MOV DX, TIROY
+		PRINTCOISAS TIRO, 0, AX, DX, 2, 6
 
-		PUSH CX  ;SALVA
-    	CALL DELAY
-    	POP CX   ;OPEN 	
+		; PUSH DX  ;SALVA
+    	; CALL DELAY
+    	; POP DX   ;OPEN 	
     
-    	MOV BX, NAVEX
+    	MOV AX, TIROX
     	SUB TIROY, 3
-		MOV CX, TIROY
-    	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
+		MOV DX, TIROY
+    	PRINTCOISAS TIRO, 15, AX, DX, 2, 6
     	
     	NXT2:
     	CMP TIROY, 0
@@ -1419,15 +1429,13 @@ ATUALIZATIRO PROC
 		RET
     	
 		FIMTIRO:
-    	MOV BX, NAVEX
-    	PRINTCOISAS TIRO, 0, BX, 0, 2, 6
+    	MOV AX, TIROX
+    	PRINTCOISAS TIRO, 0, AX, 0, 2, 6
 		MOV VERIFICATIRO, 0
-    	
-    	POP NAVEX		
-        POP BX
+		
+
 
 	RET
 ATUALIZATIRO ENDP
 
 END
-
