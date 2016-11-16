@@ -62,6 +62,10 @@ ENDM
 	LENFEITO    EQU $-FEITO
 	CENFEITO 	EQU 20 - (LENFEITO/2)
 	
+	JOGAR 		DB 'PLAY AGAIN? (S/N)'
+	LENJOGAR    EQU $-JOGAR
+	CENJOGAR    EQU 20 - (LENJOGAR/2)
+	
 	ALIEN1      DB '   x     x   $' ,0ah, 0dh
 	CEN1 		EQU 20 - (14/2)
 	ALIEN2	    DB '    x   x    $' ,0ah, 0dh
@@ -506,38 +510,23 @@ MAINLOOP:
 	JMP MAINLOOP	  ;se nao, atualiza
 ;-----------------END MAIN LOOP-------------------------------------
 
-	
+PONTTE: JMP PRINTAMENU	
 PRINTFIM:
 CALL CLS
 MOV AX, @DATA
 MOV ES, AX
 	
-MOV AX, 1300H		;mensagem ganhou
-MOV BX, 0BH			;COR
-MOV DH, 10 	        ;LINHA
-MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-MOV CX, LENGANHOU
-LEA BP, GANHOU
-INT 10h
+CALL PRINTGANHOU
 
-MOV AX, 1300H
-MOV BX, 15            ;COR
-MOV DH, 20 	  		  ;LINHA
-MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
-MOV CX, LENPRESS
-LEA BP, PRESS
-INT 10h
+MOV AH, 0h ;pressione qualquer tecla
+INT 16h
 
-MOV AX, 1300H
-MOV BX, 15            ;COR
-MOV DH, 24 	  		  ;LINHA
-MOV DL, CENFEITO   		  ;COLUNA
-MOV CX, LENFEITO
-LEA BP, FEITO
-INT 10h
+CMP AL, 115d
+JE PONTTE
+CMP AL, 110d
+JE FIMNAL
 
-MOV AH, 07h ;pressione qualquer tecla
-INT 21h
+FIMNAL:
 
 MOV AH, 4CH
 INT 21H
@@ -2304,6 +2293,40 @@ ATUALIZATIRO PROC
 
 	RET
 ATUALIZATIRO ENDP
+
+PRINTGANHOU PROC
+MOV AX, 1300H		;mensagem ganhou
+MOV BX, 2			;COR
+MOV DH, 10 	        ;LINHA
+MOV DL, CENGANHOU 	;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+MOV CX, LENGANHOU
+LEA BP, GANHOU
+INT 10h
+
+; MOV AX, 1300H
+; MOV BX, 15            ;COR
+; MOV DH, 20 	  		  ;LINHA
+; MOV DL, CENTRAPRESS   ;COLUNA, vai sempre o centro da tela menos metade da frase, centralizado
+; MOV CX, LENPRESS
+; LEA BP, PRESS
+; INT 10h
+
+MOV AX, 1300H
+MOV BX, 2            ;COR
+MOV DH, 17 	  		  ;LINHA
+MOV DL, CENJOGAR   		  ;COLUNA
+MOV CX, LENJOGAR
+LEA BP, JOGAR
+INT 10h
+
+MOV AX, 1300H
+MOV BX, 2            ;COR
+MOV DH, 24	  		  ;LINHA
+MOV DL, CENFEITO   		  ;COLUNA
+MOV CX, LENFEITO
+LEA BP, FEITO
+INT 10h
+PRINTGANHOU ENDP
 
 	
 
