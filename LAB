@@ -200,7 +200,8 @@ ENDM
 	VERIFICATIRO DW 0
 	TIROY DW 0
 	TIROX DW 0
-
+	SALVAX DW 0
+	SALVAYF DW 0
 	
 .CODE
 	CALL MENU
@@ -222,7 +223,7 @@ MAINLOOP:
 	
 	CALL PRINTJOGO     ;PRINTA TODOS ALIENS
 	
-	MOV AH,01h
+	MOV AX,0100h
 	INT 16h
 	JZ NXT4
 	
@@ -233,19 +234,13 @@ MAINLOOP:
 	JE PTTIRO          ;se sim, pula para o tiro
 	JMP NXT            ;se nao, segue
 	
-	PTTIRO: CALL TIROP   ;procedimento do tiro
+	PTTIRO: 
+	CMP VERIFICATIRO, 1
+	JE PTVERIFICA
+	CALL TIROP   ;procedimento do tiro
 	MOV VERIFICATIRO, 1
 	 
 	NXT:
-		
-	CMP VERIFICATIRO, 1
-	JE PTVERIFICA
-	JMP NXT7
-	
-	PTVERIFICA:
-	CALL ATUALIZATIRO
-	
-	NXT7:
 	CMP AL, 61h         ;verifica se é 'a'
 	JE NVES             ;se sim, pula para movimencao para esquerda
 	JMP NXT3            ;se nao, segue
@@ -268,7 +263,14 @@ MAINLOOP:
 	NXT4:
 	; MOV AH, 07h ;pressione qualquer tecla
 	; INT 21h	
+	CMP VERIFICATIRO, 1
+	JE PTVERIFICA
+	JMP NXT7
 	
+	PTVERIFICA:
+	CALL ATUALIZATIRO
+	
+	NXT7:
 	
 	CMP AL, 30h          
 	JE PRINTGANHOU
@@ -1295,14 +1297,22 @@ PRINTJOGO ENDP
 
 TIROP PROC
  	
-	XOR AX, AX
-	XOR DX, DX
+	; XOR AX, AX
+	; XOR DX, DX
 	
-	MOV AX, TIROX  ;posicao nave
-	ADD AX, 7      ;alinha tiro com bico da nave
-	MOV TIROX, AX
-	MOV DX, 186
-	PRINTCOISAS TIRO, 15, AX, DX, 2, 6
+	MOV BX, NAVEX  ;posicao nave
+	ADD BX, 7      ;alinha tiro com bico da nave
+	MOV TIROX, BX
+	MOV SALVAX, BX
+	MOV CX, 186
+	MOV TIROY, CX
+	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
+	CALL DELAY
+	PRINTCOISAS TIRO, 0, BX, CX, 2, 6
+	
+	
+	
+	MOV VERIFICATIRO, 1
 
 	
     RET
@@ -1402,35 +1412,33 @@ PERDEUP PROC
 	INT 21H
 PERDEUP ENDP
 
-ATUALIZATIRO PROC	
-		; PUSH DX  ;SALVA
-		; CALL DELAY
-		; POP DX   ;OPEN       
+ATUALIZATIRO PROC		
+		PUSH CX  ;SALVA
+		CALL DELAY
+		POP CX   ;OPEN       
 		
-		XOR AX, AX
-		XOR DX, DX
-		
-		MOV AX, TIROX
-		MOV DX, TIROY
-		PRINTCOISAS TIRO, 0, AX, DX, 2, 6
+		MOV BX, SALVAX
+		MOV CX, TIROY
+		PRINTCOISAS TIRO, 0, BX, CX, 2, 6
 
-		; PUSH DX  ;SALVA
-    	; CALL DELAY
-    	; POP DX   ;OPEN 	
+		PUSH CX  ;SALVA
+    	CALL DELAY
+    	POP CX   ;OPEN 	
     
-    	MOV AX, TIROX
-    	SUB TIROY, 3
-		MOV DX, TIROY
-    	PRINTCOISAS TIRO, 15, AX, DX, 2, 6
+    	
+    	SUB TIROY, 6
+		MOV CX, TIROY
+		MOV BX, SALVAX
+    	PRINTCOISAS TIRO, 15, BX, CX, 2, 6
     	
     	NXT2:
     	CMP TIROY, 0
-    	JA FIMTIRO
+    	JE FIMTIRO
 		RET
     	
 		FIMTIRO:
-    	MOV AX, TIROX
-    	PRINTCOISAS TIRO, 0, AX, 0, 2, 6
+    	MOV BX, SALVAX
+    	PRINTCOISAS TIRO, 0, BX, 0, 2, 6
 		MOV VERIFICATIRO, 0
 		
 
